@@ -1,0 +1,1 @@
+executar o grunt watch para obsevar os arquivos e quanto fizer alteração, automaticamente sera feito o reload.
