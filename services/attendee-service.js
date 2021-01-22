@@ -16,13 +16,13 @@ server.get('/attendees/:scheduler', function (req, res) {
 });
 
 // This responds a POST request for the homepage
-server.post('/customers/updateStatus', function (req, res) {
+server.post('/attendees/confirm', function (req, res) {
     console.log("Updating attendee status");
 
-    const { observation, scheduled_at, scheduling_accepted } = req.body;
+    const { observation, scheduled_at, scheduling_accepted, attendee_name } = req.body;
 
     dataSource.query('UPDATE attendee SET observation = ?, scheduled_at = ?, scheduling_accepted = ? WHERE name = ?',
-        [observation, scheduled_at, scheduling_accepted],
+        [observation, scheduled_at, scheduling_accepted, attendee_name],
         (err, result) => {
             if (err) throw err;
 
