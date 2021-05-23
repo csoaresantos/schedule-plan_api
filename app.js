@@ -1,6 +1,8 @@
 require('./services/customer-service');
 require('./services/campaigns-service');
 require('./services/attendee-service');
+require('./services/dashboard-service');
+
 
 // const dataSource = require('./config/database');
 // const server = require('./config/server');
