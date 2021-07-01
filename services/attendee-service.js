@@ -27,6 +27,28 @@ server.get('/attendees/:scheduler', function (req, res) {
     });
 });
 
+server.get('/attendees-audited', function (req, res) {
+    const scheduler = req.params.scheduler;
+    console.log(`Retriving data from attendees for user ${scheduler}`);
+    dataSource.query(`SELECT a.* FROM attendee a INNER JOIN system_user su ON a.scheduler_user_id = su.user_id WHERE a.status_audit = 1 AND a.scheduling_accepted  = 1`, (err, rows) => {
+        if (err) throw err;
+
+        res.send(rows);
+        //console.log('Campaigs: ', rows, '\n\n');
+    });
+});
+
+server.get('/attendees-accepted', function (req, res) {
+    const scheduler = req.params.scheduler;
+    console.log(`Retriving data from attendees for user ${scheduler}`);
+    dataSource.query(`SELECT a.* FROM attendee a INNER JOIN system_user su ON a.scheduler_user_id = su.user_id WHERE a.status_audit = 0 AND a.scheduling_accepted = 1`, (err, rows) => {
+        if (err) throw err;
+
+        res.send(rows);
+        //console.log('Campaigs: ', rows, '\n\n');
+    });
+});
+
 // This responds a POST request for the homepage
 server.post('/attendees/confirm', async function (req, res) {
     console.log("Updating attendee status"+ JSON.stringify(req.body));
@@ -34,7 +56,7 @@ server.post('/attendees/confirm', async function (req, res) {
     const { observation, scheduled_at, scheduling_accepted, attendee_name } = req.body;
 
     await dataSource.query('UPDATE attendee SET observation = ?, scheduled_at = ?, scheduling_accepted = ? WHERE name = ?',
-        [observation, scheduled_at, scheduling_accepted, attendee_name],
+        [observation, scheduled_at, 1, attendee_name],
         (err, result) => {
             if (err) {
                 console.log(err);
@@ -59,7 +81,7 @@ server.post('/attendees/update', async function (req, res) {
     const { scheduler_auditor_id, observation, scheduled_at, scheduling_accepted, attendee_name } = req.body;
     console.table(req.body);
     await dataSource.query('UPDATE attendee SET audited_at = NOW(), scheduler_auditor_id = ?, status_audit = 1, observation = ?, scheduled_at = ?, scheduling_accepted = ? WHERE name = ?',
-    [scheduler_auditor_id, observation, scheduled_at, scheduling_accepted, attendee_name],
+    [scheduler_auditor_id, observation, scheduled_at, 1, attendee_name],
         (err, result) => {
             if (err) {
                 console.log(err);
