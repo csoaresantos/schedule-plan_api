@@ -30,7 +30,7 @@ server.get('/attendees/:scheduler', function (req, res) {
 server.get('/attendees-audited', function (req, res) {
     const scheduler = req.params.scheduler;
     console.log(`Retriving data from attendees for user ${scheduler}`);
-    dataSource.query(`SELECT a.* FROM attendee a INNER JOIN system_user su ON a.scheduler_user_id = su.user_id WHERE a.status_audit = 1 AND a.scheduling_accepted  = 1`, (err, rows) => {
+    dataSource.query(`SELECT a.* FROM attendee a INNER JOIN system_user su ON a.scheduler_user_id = su.user_id WHERE a.status_audit = 1 AND a.scheduling_accepted  = 1 AND a.status_checkin  = 0`, (err, rows) => {
         if (err) throw err;
 
         res.send(rows);
@@ -97,4 +97,30 @@ server.post('/attendees/update', async function (req, res) {
     );
 
     //res.send('Hello POST');
+});
+
+// ENDPOINT PARA CONFIRMAR AUDITORIA DO CLIENTE
+server.post('/attendees/checkin', async function (req, res) {
+    console.log("Updating attendee status"+ JSON.stringify(req.body));
+
+    const { name, telephone_primary,  telephone_secondary } = req.body;
+    let telephone_primary_fmt = telephone_primary.replace('(','').replace(')','').replace(' ','').replace('-','');
+    let telephone_secondary_fmt = telephone_secondary.replace('(','').replace(')','').replace(' ','').replace('-','');
+    
+    console.table(req.body);
+    await dataSource.query('UPDATE attendee SET checkin_at = NOW(), status_checkin = 1 WHERE name = ? AND telephone_primary = ? AND telephone_secondary = ?',
+    [name, telephone_primary_fmt, telephone_secondary_fmt],
+        (err, result) => {
+            if (err) {
+                console.log(err);
+                res.status(400).send({ 'errorMessage': 'Erro ao fazer o checkin!' });
+                
+
+            } else {
+                res.status(200).send({ 'successMessage': 'Checkin realizado com sucess!'});
+            }
+
+            console.log('Checkin feature called! ', result);
+        }
+    );
 });

@@ -8,7 +8,7 @@ server.get('/dashboard', async function (req, res) {
         // 'total_schedulers': [6, 3, 1, 2, 4]
     };
 
-    await dataSource.query(`SELECT system_user.user_name, count(system_user.user_name) total FROM attendee  INNER JOIN system_user  on system_user.user_id =  attendee.scheduler_user_id WHERE attendee.status_audit = 1 and attendee.scheduling_accepted = 1 GROUP by system_user.user_name`, (err, rows) => {
+    await dataSource.query(`SELECT system_user.user_name, count(system_user.user_name) total FROM attendee  INNER JOIN system_user  on system_user.user_id =  attendee.scheduler_user_id WHERE attendee.status_audit = 1 and attendee.scheduling_accepted in (1, 2) GROUP by system_user.user_name`, (err, rows) => {
         if (err) throw err;
 
         list = {
